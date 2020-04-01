@@ -3,7 +3,8 @@ module.exports={
     host: "localhost",
     user:  "root",
     password:  "1234",
-    database:  "ejemplo",
-    port: "3306"
+    database:  "liclichistorial",
+    port: "8080"
 
 }
+

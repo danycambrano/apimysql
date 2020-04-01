@@ -19,6 +19,7 @@ app.use(express.static(path.join(__dirname,'public')))
 
 app.use('/api',rutas);
 
+export let puerto_db = app.get('port');
 app.listen(app.get('port'),()=>{
     console.log('server on port ' + app.get('port'));
 }); 

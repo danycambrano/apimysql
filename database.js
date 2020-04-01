@@ -2,6 +2,7 @@ import mysql from 'mysql';
 import {promisify} from 'util';
 import database from './config';
 
+
 const pool = mysql.createPool(database);
 
 pool.getConnection((err, connection) => {
@@ -17,7 +18,7 @@ pool.getConnection((err, connection) => {
           }
     }
     if(connection) connection.release();
-    console.log('Base de datos conectada en el puerto 3306');
+    console.log('Base de datos conectada en el puerto ' + database.port );
     return;
 });
 

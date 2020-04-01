@@ -15,7 +15,16 @@ import Personal from '../models/personal.model';
         descripcion: req.body.descripcion
     });
 
-Personal.create(personal, (err, data) => {
+    const criterio = new Personal({
+      id_Materias: req.body.id_Materias,
+      periodo: req.body.periodo,
+      grupo_id: req.body.grupo_id,
+      tema_nombre: req.body.tema1_nombre,
+      fecha_limite: req.body.fecha_limite
+  });
+
+Personal.create(criterio, (err, data) => {
+  console.log('1')
     if (err)
       res.status(500).send({
         message:
@@ -41,13 +50,11 @@ exports.findAll=(req, res)=>{
       });
 }
 
-exports.findOne = (req, res) => {
+exports.findOne = (req, res) => {// get por id
     Personal.findById(req.params.personalId, (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
-            res.status(404).send({
-              message: `Not found Customer with id ${req.params.personalId}.`
-            });
+            res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
           } else {
             res.status(500).send({
               message: "Error retrieving Customer with id " + req.params.personalId
@@ -55,6 +62,21 @@ exports.findOne = (req, res) => {
           }
         } else res.send(data);
       });
+};
+
+exports.findTemas = (req, res) => {// get por id
+  console.log('...')
+  Personal.findTema(req.params.idDocente, req.params.idMateria, req.params.periodo, req.params.cierre, (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id " + req.params.idDocente
+          });
+        }
+      } else res.send(data);
+    });
 };
 
 exports.update = (req, res) => {
