@@ -1,4 +1,5 @@
-import Personal from '../models/personal.model';
+import {Personal} from '../models/personal.model';
+import {Criterios} from '../models/personal.model';
 
 
     exports.create = (req,res)=>{
@@ -14,13 +15,33 @@ import Personal from '../models/personal.model';
         apellidos: req.body.apellidos,
         descripcion: req.body.descripcion
     });
+    const criterios = new Personal({
+      criterio1: req.body.criterio1,
+      porcentageC1: req.body.porcentageC1,
+      criterio2: req.body.criterio2,
+      porcentageC2: req.body.porcentageC2,
+      criterio3: req.body.criterio3,
+      porcentageC3: req.body.porcentageC3,
+  });
+
+  
+
 
     const criterio = new Personal({
       id_Materias: req.body.id_Materias,
       periodo: req.body.periodo,
       grupo_id: req.body.grupo_id,
       tema_nombre: req.body.tema1_nombre,
-      fecha_limite: req.body.fecha_limite
+      fecha_limite: req.body.fecha_limite,
+      numUnidad: req.body.numUnidad,
+
+      criterio1: req.body.criterio1,
+      porcentageC1: req.body.porcentageC1,
+      criterio2: req.body.criterio2,
+      porcentageC2: req.body.porcentageC2,
+      criterio3: req.body.criterio3,
+      porcentageC3: req.body.porcentageC3,
+
   });
 
 Personal.create(criterio, (err, data) => {
@@ -33,6 +54,53 @@ Personal.create(criterio, (err, data) => {
     else res.send(data);
   });
 };
+
+
+exports.createCalificacion = (req,res)=>{//ninico
+  console.log(" creando calificacion")
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+}
+
+
+const calificacion = new Criterios({
+  calR1: req.body.calR1,
+  calR2: req.body.calR2,
+  calR3: req.body.calR3,
+
+  calCriterio1: req.body.calCriterio1,
+  calCriterio2: req.body.calCriterio2,
+  calCriterio3: req.body.calCriterio3,
+
+  calificaciontotal: req.body.calificaciontotal,
+
+
+  unidad: req.body.unidad,
+  idGrupoAsign: req.body.idGrupoAsign,
+  materias_idmaterias: req.body.materias_idmaterias,
+  materiaDocente_id: req.body.materiaDocente_id,
+  criterios_idcat_Unidad: req.body.criterios_idcat_Unidad,
+  aspirante_Folio: req.body.aspirante_Folio,
+  registrocal_idcarrera: req.body.registrocal_idcarrera,
+  periodo: req.body.periodo,
+});
+
+
+
+Criterios.createRegistocalificacion(calificacion, (err, data) => {
+  
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Customer."
+      });
+    else res.send(data);
+  });
+
+}//fin
+
 
 exports.findAll=(req, res)=>{
     Personal.getAll( (err, data) => {
@@ -78,6 +146,197 @@ exports.findTemas = (req, res) => {// get por id
       } else res.send(data);
     });
 };
+
+exports.findAlumnos = (req, res) => {// get por id
+  console.log('...iniciando find alumnos')
+  Personal.findAlumno(req.params.idMateria, req.params.periodo, req.params.idDocente, (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id " + req.params.idDocente
+          });
+        }
+      } else res.send(data);
+    });
+};
+
+
+exports.findCriterios = (req, res) => {// get por id
+  console.log('...iniciando find alumnos')
+  Personal.findCriterio(req.params.periodo, req.params.idMateria,  req.params.unidad, (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id " + req.params.idDocente
+          });
+        }
+      } else res.send(data);
+    });
+};
+
+
+
+exports.updateCriterios = (req, res) => {
+  // Validate Request
+  if (!req.body) {
+   res.status(400).send({
+     message: "Content can not be empty!"
+   });
+ }
+
+ Personal.updateCriterio(
+   req.params.periodo,
+   req.params.materia,
+   req.params.unidad,
+   req.params.grupo,
+   new Personal(req.body),
+   (err, data) => {
+     if (err) {
+       if (err.kind === "not_found") {
+         res.status(404).send({
+           message: `Not found Personal with id ${req.params.periodo}.`
+         });
+       } else {
+         res.status(500).send({
+           message: "Error updating Personal with id " + req.params.periodo
+         });
+       }
+     } else res.send(data);
+   }
+ );
+};
+
+
+exports.updateCriteriosc1 = (req, res) => {
+  // Validate Request
+  if (!req.body) {
+   res.status(400).send({
+     message: "Content can not be empty!"
+   });
+ }
+
+ Personal.updateCriterioc1(
+   req.params.periodo,
+   req.params.materia,
+   req.params.unidad,
+   req.params.grupo,
+   new Personal(req.body),
+   (err, data) => {
+     if (err) {
+       if (err.kind === "not_found") {
+         res.status(404).send({
+           message: `Not found Personal with id ${req.params.periodo}.`
+         });
+       } else {
+         res.status(500).send({
+           message: "Error updating Personal with id " + req.params.periodo
+         });
+       }
+     } else res.send(data);
+   }
+ );
+};
+
+
+
+exports.updateCriteriosc2 = (req, res) => {
+  // Validate Request
+  if (!req.body) {
+   res.status(400).send({
+     message: "Content can not be empty!"
+   });
+ }
+
+ Personal.updateCriterioc2(
+   req.params.periodo,
+   req.params.materia,
+   req.params.unidad,
+   req.params.grupo,
+   new Personal(req.body),
+   (err, data) => {
+     if (err) {
+       if (err.kind === "not_found") {
+         res.status(404).send({
+           message: `Not found Personal with id ${req.params.periodo}.`
+         });
+       } else {
+         res.status(500).send({
+           message: "Error updating Personal with id " + req.params.periodo
+         });
+       }
+     } else res.send(data);
+   }
+ );
+};
+
+
+exports.updateCriteriosc3 = (req, res) => {
+  // Validate Request
+  if (!req.body) {
+   res.status(400).send({
+     message: "Content can not be empty!"
+   });
+ }
+
+ Personal.updateCriterioc3(
+   req.params.periodo,
+   req.params.materia,
+   req.params.unidad,
+   req.params.grupo,
+   new Personal(req.body),
+   (err, data) => {
+     if (err) {
+       if (err.kind === "not_found") {
+         res.status(404).send({
+           message: `Not found Personal with id ${req.params.periodo}.`
+         });
+       } else {
+         res.status(500).send({
+           message: "Error updating Personal with id " + req.params.periodo
+         });
+       }
+     } else res.send(data);
+   }
+ );
+};
+
+
+
+exports.updateCalificaciones = (req, res) => {
+  // Validate Request
+  if (!req.body) {
+   res.status(400).send({
+     message: "Content can not be empty!"
+   });
+ }
+
+ Criterios.updateCalificacion(
+   req.params.idCalificacion,
+   
+   new Criterios(req.body),
+   (err, data) => {
+     if (err) {
+       if (err.kind === "not_found") {
+         res.status(404).send({
+           message: `Not found Personal with id ${req.params.periodo}.`
+         });
+       } else {
+         res.status(500).send({
+           message: "Error updating Personal with id " + req.params.periodo
+         });
+       }
+     } else res.send(data);
+   }
+ );
+};
+
+
+
+
 
 exports.update = (req, res) => {
   // Validate Request
