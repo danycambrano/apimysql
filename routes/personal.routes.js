@@ -13,7 +13,7 @@ router.get('/consultar/:personalId', personalController.findOne);
 router.get('/consultarTema/:idDocente/:idMateria/:periodo/:cierre', personalController.findTemas);
 router.get('/consultarAlumnos/:idMateria/:periodo/:idDocente', personalController.findAlumnos);
 router.get('/consultar/estado/temas/:periodo/:id_Materia/:id_personal', personalController.findStadoTemas);//<
-router.get('/consultar/:periodo/:idMateria/:unidad', personalController.findCriterios);
+router.get('/consultarCriterios/:periodo/:idMateria/:unidad', personalController.findCriterios);
 
 router.put('/update/criterios/:periodo/:materia/:unidad/:grupo', personalController.updateCriterios);
 router.put('/update/criteriosc1/:periodo/:materia/:unidad/:grupo', personalController.updateCriteriosc1);
