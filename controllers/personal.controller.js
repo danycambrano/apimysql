@@ -133,7 +133,6 @@ exports.findOne = (req, res) => {// get por id
 };
 
 exports.findTemas = (req, res) => {// get por id
-  console.log('...')
   Personal.findTema(req.params.idDocente, req.params.idMateria, req.params.periodo, req.params.cierre, (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
@@ -161,6 +160,23 @@ exports.findAlumnos = (req, res) => {// get por id
       } else res.send(data);
     });
 };
+
+
+exports.findStadoTemas = (req, res) => {// get temas
+  console.log('...iniciando findStadoTemas' + req.params.periodo+ req.params.id_Materia+ req.params.id_personal)
+  Personal.finstadoTema(req.params.periodo, req.params.id_Materia, req.params.id_personal, (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id " + req.params.idDocente
+          });
+        }
+      } else res.send(data);
+    });
+};
+
 
 
 exports.findCriterios = (req, res) => {// get por id

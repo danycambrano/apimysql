@@ -165,7 +165,7 @@ Personal.findById = async (personalId, result) => { // get por id
 };
 
 
-Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { // get por id
+Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { // get lista de materias
   const query = `select cargaacademica.folioca as FolioAcade,cargaacademica.idnomenclaturaPeriodo ,
     materiadocente.materias_idMaterias as idMateria,
     criterios.nomUnidad as tema,criterios.numUnidad,
@@ -276,6 +276,32 @@ Personal.findCriterio = async (periodo,idMateria,  unidad, result) => { // get p
   });
 };
 
+
+
+Personal.finstadoTema = async (periodo, id_Materia, id_personal, result) => { // get finstadoTema
+  const query = `select DATE_FORMAT(criterios.fecha_limite,'%Y-%m-%d') as fecha_limite , criterios.nomUnidad as tema1_nombre  from criterios
+  left join materiadocente on materiadocente.materias_idMaterias= criterios.materias_idmaterias
+  where criterios.periodo=${periodo} 
+  and materiadocente.personal_id=${id_personal} 
+  and materiadocente.materias_idMaterias=${id_Materia};`; // id es el personal
+
+  await pool.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found lista de stado temas: ", res[0]);
+      result(null, res);
+      return;
+    }
+
+    // not found Customer with the id
+    result({ kind: "not_found" }, null);
+  });
+};
 
 
 Personal.updateCriterio = async (periodo, materia,unidad,grupo,criterio ,result) => {
