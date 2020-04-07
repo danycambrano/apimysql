@@ -1,10 +1,10 @@
 module.exports={
     connectionLimit : 100,
-    host: "localhost", //212.237.52.166 : 
+    host: "212.237.52.166", //212.237.52.166 : 
     user:  "root",
-    password:  "1234", //pruebas
+    password:  "pruebas", //pruebas
     database:  "liclichistorial",
-    port: "8080" //3306
+    port: "3306" //3306
 
 }
 
