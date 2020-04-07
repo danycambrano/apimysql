@@ -19,6 +19,8 @@ router.put('/update/criterios/:periodo/:materia/:unidad/:grupo', personalControl
 router.put('/update/criteriosc1/:periodo/:materia/:unidad/:grupo', personalController.updateCriteriosc1);
 router.put('/update/criteriosc2/:periodo/:materia/:unidad/:grupo', personalController.updateCriteriosc2);
 router.put('/update/criteriosc3/:periodo/:materia/:unidad/:grupo', personalController.updateCriteriosc3);
+router.put('/update/criteriosc4/:periodo/:materia/:unidad/:grupo', personalController.updateCriteriosc4);
+
 
 router.put('/update/calificaciones/:idCalificacion', personalController.updateCalificaciones);
 

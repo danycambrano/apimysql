@@ -41,6 +41,8 @@ import {Criterios} from '../models/personal.model';
       porcentageC2: req.body.porcentageC2,
       criterio3: req.body.criterio3,
       porcentageC3: req.body.porcentageC3,
+      criterio4: req.body.criterio4,
+      porcentageC4: req.body.porcentageC4,
 
   });
 
@@ -69,10 +71,14 @@ const calificacion = new Criterios({
   calR1: req.body.calR1,
   calR2: req.body.calR2,
   calR3: req.body.calR3,
+  calR4: req.body.calR4,
+
 
   calCriterio1: req.body.calCriterio1,
   calCriterio2: req.body.calCriterio2,
   calCriterio3: req.body.calCriterio3,
+  calCriterio4: req.body.calCriterio4,
+
 
   calificaciontotal: req.body.calificaciontotal,
 
@@ -319,6 +325,40 @@ exports.updateCriteriosc3 = (req, res) => {
    }
  );
 };
+
+
+
+exports.updateCriteriosc4 = (req, res) => {
+  // Validate Request
+  if (!req.body) {
+   res.status(400).send({
+     message: "Content can not be empty!"
+   });
+ }
+
+ Personal.updateCriterioc4(
+   req.params.periodo,
+   req.params.materia,
+   req.params.unidad,
+   req.params.grupo,
+   new Personal(req.body),
+   (err, data) => {
+     if (err) {
+       if (err.kind === "not_found") {
+         res.status(404).send({
+           message: `Not found Personal with id ${req.params.periodo}.`
+         });
+       } else {
+         res.status(500).send({
+           message: "Error updating Personal with id " + req.params.periodo
+         });
+       }
+     } else res.send(data);
+   }
+ );
+};
+
+
 
 
 

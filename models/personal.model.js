@@ -21,16 +21,22 @@ const Personal = function (criterio) {
   this.porcentageC2 = criterio.porcentageC2;
   this.criterio3 = criterio.criterio3;
   this.porcentageC3 = criterio.porcentageC3;
+  this.criterio4 = criterio.criterio4;
+  this.porcentageC4 = criterio.porcentageC4;
 }
 
 const Criterios = function (calificacion) {
   this.calR1 = calificacion.calR1;
   this.calR2 = calificacion.calR2;
   this.calR3 = calificacion.calR3;
+  this.calR4 = calificacion.calR4;
+
 
   this.calCriterio1 = calificacion.calCriterio1;
   this.calCriterio2 = calificacion.calCriterio2;
   this.calCriterio3 = calificacion.calCriterio3;
+  this.calCriterio4 = calificacion.calCriterio4;
+
 
   this.calificaciontotal = calificacion.calificaciontotal;
 
@@ -68,10 +74,10 @@ Personal.create = async (criterio, result) => {//guardar temas
 
   Criterios.createRegistocalificacion = async (calificacion, result) => {//guardar calificacion
     console.log("esto es el metodo guardar")
-  const query = `INSERT INTO registrocal (calR1, calR2, calR3, calCriterio1, calCriterio2, calCriterio3,calificaciontotal, 
+  const query = `INSERT INTO registrocal (calR1, calR2, calR3,calR4, calCriterio1, calCriterio2, calCriterio3,calCriterio4,calificaciontotal, 
     unidad, idGrupoAsign, materias_idmaterias, materiaDocente_id, criterios_idcat_Unidad,
      aspirante_Folio, periodo)
-     VALUES (${calificacion.calR1}, ${calificacion.calR2}, ${calificacion.calR3}, ${calificacion.calCriterio1}, ${calificacion.calCriterio2}, ${calificacion.calCriterio3}, ${calificacion.calificaciontotal}, 
+     VALUES (${calificacion.calR1}, ${calificacion.calR2}, ${calificacion.calR3},${calificacion.calR4}, ${calificacion.calCriterio1}, ${calificacion.calCriterio2}, ${calificacion.calCriterio3},${calificacion.calCriterio4}, ${calificacion.calificaciontotal}, 
      ${calificacion.unidad}, ${calificacion.idGrupoAsign}, ${calificacion.materias_idmaterias}, ${calificacion.materiaDocente_id}, ${calificacion.criterios_idcat_Unidad},
       ${calificacion.aspirante_Folio},${calificacion.periodocali});
     `;
@@ -209,8 +215,8 @@ Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { /
 Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { // get lista de  alumnos tabla calficaciones
   const query = `SELECT  cargaacademica.folioca as FolioAcade, cargaacademica.idnomenclaturaPeriodo,
   concat( aspirante.nombreAspirante, ' ', aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno) as nameAlumno, aspirante.numeroControl as control ,aspirante.Folio as folioAspirante,
-  registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3, registrocal.calificaciontotal,
-  registrocal.calR1, registrocal.calR2,registrocal.calR3, 
+  registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3,registrocal.calCriterio4, registrocal.calificaciontotal,
+  registrocal.calR1, registrocal.calR2,registrocal.calR3, registrocal.calR4,
   registrocal.curso, registrocal.idGrupoAsign, registrocal.materiaDocente_id,registrocal.materias_idmaterias,
   registrocal.periodo,registrocal.unidad,
   materiadocente.materias_idMaterias as idMateria,materiadocente.id as idMateriaDocente, materiadocente.asignacionGrupo_idgrupo
@@ -422,13 +428,44 @@ Personal.updateCriterioc3 = async (periodo, materia,unidad,grupo,criterio ,resul
 };
 
 
+Personal.updateCriterioc4 = async (periodo, materia,unidad,grupo,criterio ,result) => {
+  //"UPDATE users SET nombre = ?, apellidos = ?, descripcion = ? WHERE id = ?",[personal.nombre, personal.apellidos, personal.descripcion, id]
+  const query =`
+  UPDATE criterios SET criterio4 = '${criterio.criterio4}', porcentageC4 = ${criterio.porcentageC4}
+  
+  where criterios.periodo = '${periodo}'
+  and criterios.materias_idmaterias = '${materia}' 
+  and criterios.numUnidad = ${unidad}
+  and criterios.asingnacion_grupo_id= '${grupo}';`;
+
+  await pool.query(query,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+        return;
+      }
+      if (res.affectedRows == 0) {
+        // not found Customer with the id
+        result({ kind: "not_found" }, null);
+        return;
+      }
+
+      console.log("Datos de personal actualizados: ");
+      result(null,{status:'ok'});
+    }
+  );
+};
+
+
+
 
 
 
 Criterios.updateCalificacion = async (idCalificacion,calificacion ,result) => {
   //"UPDATE users SET nombre = ?, apellidos = ?, descripcion = ? WHERE id = ?",[personal.nombre, personal.apellidos, personal.descripcion, id]
-  const query =`UPDATE registrocal SET calR1 = '${calificacion.calR1}', calR2 = '${calificacion.calR2}', calR3 = '${calificacion.calR3}',
-  calCriterio1 = '${calificacion.calCriterio1}', calCriterio2 = '${calificacion.calCriterio2}', calCriterio3 = '${calificacion.calCriterio3}', 
+  const query =`UPDATE registrocal SET calR1 = '${calificacion.calR1}', calR2 = '${calificacion.calR2}', calR3 = '${calificacion.calR3}',calR4 = '${calificacion.calR4}',
+  calCriterio1 = '${calificacion.calCriterio1}', calCriterio2 = '${calificacion.calCriterio2}', calCriterio3 = '${calificacion.calCriterio3}', calCriterio4 = '${calificacion.calCriterio4}', 
   calificaciontotal = '${calificacion.calificaciontotal}'
   WHERE (idcalificaciones = '${idCalificacion}');`;
 
