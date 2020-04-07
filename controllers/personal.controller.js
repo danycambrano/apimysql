@@ -147,8 +147,8 @@ exports.findTemas = (req, res) => {// get por id
 };
 
 exports.findAlumnos = (req, res) => {// get por id
-  console.log('...iniciando find alumnos')
-  Personal.findAlumno(req.params.idMateria, req.params.periodo, req.params.idDocente, (err, data) => {
+  console.log('...iniciando find alumnos<>>')
+  Personal.findAlumno(req.params.idMateria, req.params.periodo, req.params.idDocente, req.params.unidad , (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
           res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`

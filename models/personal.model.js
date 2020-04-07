@@ -206,34 +206,25 @@ Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { /
 };
 
 
-Personal.findAlumno = async (idMateria, periodo, idDocente, result) => { // get por id
-  const query = `
-      select cargaacademica.folioca as FolioAcade,cargaacademica.idnomenclaturaPeriodo ,
-      concat( alumnos.nombreAspirante, ' ',alumnos.apellidoPaterno,' ',alumnos.apellidoMaterno) as nameAlumno, alumnos.numeroControl as control,alumnos.Folio as folioAspirante,
-      registrocal.idcalificaciones,registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3, registrocal.calificaciontotal,
-      registrocal.calR1, registrocal.calR2,registrocal.calR3, 
-      registrocal.curso, registrocal.idGrupoAsign, registrocal.materiaDocente_id,registrocal.materias_idmaterias,
-      registrocal.periodo,registrocal.unidad,
-      materiadocente.materias_idMaterias as idMateria,materiadocente.id as idMateriaDocente,materiadocente.asignacionGrupo_idgrupo,
-      docente.nombres as nameDocente,
-      carreras.nombreCorto, carreras.modalidad,
-      plan.clavePE as plan,
-      materias.clave as clave_materia,materias.nombre
-      
-      from cargaacademica
-      right join aspirante as alumnos on alumnos.Folio = cargaacademica.aspirante_Folio
-      left join registrocal on registrocal.aspirante_Folio = alumnos.Folio
-      right join materiadocente  on materiadocente.id = cargaacademica.materiadocente_id
-      right join materias on materias.idmaterias = materiadocente.materias_idMaterias
-      right join criterios on criterios.materias_idmaterias = materias.idmaterias
-      right join materias_has_planestudios as materia_plan on materia_plan.materias_idmaterias= materias.idmaterias
-      right join planestudios as plan on plan.idplanEstudios = materia_plan.planEstudios_idplanEstudios
-      right join catalogocarreras_has_planestudios as carrera_plan on carrera_plan.planEstudios_idplanEstudios=plan.idplanEstudios
-      right join catalogocarreras as carreras on carreras.idCarrera = carrera_plan.catalogoCarreras_idCarrera
-      right join personal as docente on docente.id = materiadocente.personal_id
-
-      where cargaacademica.idnomenclaturaPeriodo = ${periodo} and materiadocente.materias_idMaterias = ${idMateria} 
-      and docente.id =  ${idDocente} and criterios.numUnidad = 1;`; // la unidad esta directa para prubas rapidas
+Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { // get lista de  alumnos tabla calficaciones
+  const query = `SELECT  cargaacademica.folioca as FolioAcade, cargaacademica.idnomenclaturaPeriodo,
+  concat( aspirante.nombreAspirante, ' ', aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno) as nameAlumno, aspirante.numeroControl as control ,aspirante.Folio as folioAspirante,
+  registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3, registrocal.calificaciontotal,
+  registrocal.calR1, registrocal.calR2,registrocal.calR3, 
+  registrocal.curso, registrocal.idGrupoAsign, registrocal.materiaDocente_id,registrocal.materias_idmaterias,
+  registrocal.periodo,registrocal.unidad,
+  materiadocente.materias_idMaterias as idMateria,materiadocente.id as idMateriaDocente, materiadocente.asignacionGrupo_idgrupo
+   
+  FROM liclichistorial.aspirante   
+  inner join cargaacademica on cargaacademica.aspirante_Folio = aspirante.Folio
+  inner join materiadocente on materiadocente.id = cargaacademica.materiadocente_id
+  left join criterios on criterios.materias_idmaterias=materiadocente.materias_idMaterias
+  left join registrocal on registrocal.criterios_idcat_Unidad = criterios.idcat_Unidad and registrocal.aspirante_Folio = aspirante.Folio
+  
+  
+  where criterios.numUnidad =${unidad} and criterios.materias_idmaterias = ${idMateria} 
+  and criterios.periodo= ${periodo} and materiadocente.personal_id = ${idDocente}
+  group by aspirante.Folio;`; // la unidad esta directa para prubas rapidas
 
   await pool.query(query, (err, res) => {
     if (err) {
