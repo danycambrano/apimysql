@@ -24,9 +24,6 @@ import {Criterios} from '../models/personal.model';
       porcentageC3: req.body.porcentageC3,
   });
 
-  
-
-
     const criterio = new Personal({
       id_Materias: req.body.id_Materias,
       periodo: req.body.periodo,
@@ -43,7 +40,6 @@ import {Criterios} from '../models/personal.model';
       porcentageC3: req.body.porcentageC3,
       criterio4: req.body.criterio4,
       porcentageC4: req.body.porcentageC4,
-
   });
 
 Personal.create(criterio, (err, data) => {
@@ -66,23 +62,16 @@ exports.createCalificacion = (req,res)=>{//ninico
     });
 }
 
-
 const calificacion = new Criterios({
   calR1: req.body.calR1,
   calR2: req.body.calR2,
   calR3: req.body.calR3,
   calR4: req.body.calR4,
-
-
   calCriterio1: req.body.calCriterio1,
   calCriterio2: req.body.calCriterio2,
   calCriterio3: req.body.calCriterio3,
   calCriterio4: req.body.calCriterio4,
-
-
   calificaciontotal: req.body.calificaciontotal,
-
-
   unidad: req.body.unidad,
   idGrupoAsign: req.body.idGrupoAsign,
   materias_idmaterias: req.body.materias_idmaterias,
@@ -92,8 +81,6 @@ const calificacion = new Criterios({
   registrocal_idcarrera: req.body.registrocal_idcarrera,
   periodo: req.body.periodo,
 });
-
-
 
 Criterios.createRegistocalificacion(calificacion, (err, data) => {
   
@@ -138,7 +125,37 @@ exports.findOne = (req, res) => {// get por id
       });
 };
 
-exports.findTemas = (req, res) => {// get por id
+
+exports.horarios = (req, res) => {// get
+  Personal.horario(req.params.periodo, req.params.idMateria, req.params.idDocente, req.params.grupo, (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id " + req.params.idDocente
+          });
+        }
+      } else res.send(data);
+    });
+};
+
+exports.reporteListas = (req, res) => {// get
+  Personal.reporteLista(req.params.periodo, req.params.idMateria, req.params.idDocente, req.params.grupo, (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id " + req.params.idDocente
+          });
+        }
+      } else res.send(data);
+    });
+};
+
+
+exports.findTemas = (req, res) => {// get
   Personal.findTema(req.params.idDocente, req.params.idMateria, req.params.periodo, req.params.cierre, (err, data) => {
       if (err) {
         if (err.kind === "not_found") {

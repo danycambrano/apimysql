@@ -212,10 +212,79 @@ Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { /
 };
 
 
+//reportes consultas
+Personal.horario = async (periodo, idMateria, idDocente, grupo, result) => { // get lista rorario
+  const query = `SELECT
+  GROUP_CONCAT( 
+    if(hora.dia ='Lun',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' '),
+    if(hora.dia ='Mar',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' ') ,
+    if(hora.dia ='Mir',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' '),
+    if(hora.dia ='Jue',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' ') ,
+    if(hora.dia ='Vie',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' ') ,
+    if(hora.dia ='Sab',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' '),
+    if(hora.dia ='Dom',concat(hora.dia,' ',DATE_FORMAT(hora.horaInicio, '%H:%i'),' A ',DATE_FORMAT(hora.horaFinal, '%H:%i')),' ')) as semanas,
+  cat_grupo.nomenclatura as grupo , asignaciongrupo.semestre
+  FROM liclichistorial.materiadocente
+  inner join horariomaterias as hora on hora.materiaDocente_id = materiadocente.id
+  inner join asignaciongrupo on asignaciongrupo.idgrupo = materiadocente.asignacionGrupo_idgrupo
+  inner join cat_grupo on cat_grupo.id = asignaciongrupo.grupo
+
+  where materiadocente.materias_idMaterias= ${idMateria} and materiadocente.asignacionGrupo_idgrupo= ${grupo} 
+  and asignaciongrupo.periodo=${periodo} and materiadocente.personal_id=${idDocente};`; // 
+
+  await pool.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found lista de horas: ", res[0]);
+      result(null, res);
+      return;
+    }
+
+    // not found Customer with the id
+    result({ kind: "not_found" }, null);
+  });
+};
+
+Personal.reporteLista = async (periodo, idMateria, idDocente, grupo, result) => { // get lista de alumnos
+  const query = `
+  SELECT aspirante.numeroControl , concat(aspirante.nombreAspirante, aspirante.apellidoPaterno,aspirante.apellidoMaterno) as nombre, 
+  if(cargaacademica.modalidad = 1,'','pendiente') as modalidad
+   FROM liclichistorial.cargaacademica 
+  inner join materiadocente on materiadocente.id = cargaacademica.materiadocente_id
+  inner join aspirante on aspirante.Folio = cargaacademica.aspirante_Folio
+  
+  where  cargaacademica.idnomenclaturaPeriodo= ${periodo}  and materiadocente.materias_idMaterias = ${idMateria}
+  and materiadocente.personal_id = ${idDocente} and materiadocente.asignacionGrupo_idgrupo=${grupo} ;`; // 
+
+  await pool.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found lista de horas: ", res[0]);
+      result(null, res);
+      return;
+    }
+
+    // not found Customer with the id
+    result({ kind: "not_found" }, null);
+  });
+};
+
+
+
 Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { // get lista de  alumnos tabla calficaciones
   const query = `SELECT  cargaacademica.folioca as FolioAcade, cargaacademica.idnomenclaturaPeriodo,
   concat( aspirante.nombreAspirante, ' ', aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno) as nameAlumno, aspirante.numeroControl as control ,aspirante.Folio as folioAspirante,
-  registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3,registrocal.calCriterio4, registrocal.calificaciontotal,
+  registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3,registrocal.calCriterio4,IF(registrocal.calificaciontotal <70, concat("NA:" ,registrocal.calificaciontotal), registrocal.calificaciontotal) as calificaciontotal,
   registrocal.calR1, registrocal.calR2,registrocal.calR3, registrocal.calR4,
   registrocal.curso, registrocal.idGrupoAsign, registrocal.materiaDocente_id,registrocal.materias_idmaterias,
   registrocal.periodo,registrocal.unidad,
