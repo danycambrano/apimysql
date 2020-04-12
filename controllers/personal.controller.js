@@ -112,7 +112,7 @@ exports.findAll=(req, res)=>{
 }
 
 exports.findOne = (req, res) => {// get por id
-    Personal.findById(req.params.personalId, (err, data) => {
+    Personal.findById(req.params.personalId,req.params.periodo, (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
             res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
@@ -125,6 +125,19 @@ exports.findOne = (req, res) => {// get por id
       });
 };
 
+exports.getPeriodo = (req, res) => {// get inicio periodo
+  Personal.periodoActual( (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`
+        } else {
+          res.status(500).send({
+            message: "Error retrieving Customer with id "
+          });
+        }
+      } else res.send(data);
+    });
+};//fin periodo
 
 exports.horarios = (req, res) => {// get
   Personal.horario(req.params.periodo, req.params.idMateria, req.params.idDocente, req.params.grupo, (err, data) => {

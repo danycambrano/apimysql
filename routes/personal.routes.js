@@ -4,12 +4,13 @@ import personalController from '../controllers/personal.controller';
 
 
 const router=routerx();
-
+//rutas actualizar periodo
+router.get('/consultar/periodo',personalController.getPeriodo);
 router.post('/add',personalController.create);
 router.post('/add/calificacion',personalController.createCalificacion);
 
 router.get('/consultar', personalController.findAll);
-router.get('/consultar/:personalId', personalController.findOne);
+router.get('/consultar/:personalId/:periodo', personalController.findOne);
 router.get('/consultarTema/:idDocente/:idMateria/:periodo/:cierre', personalController.findTemas);
 router.get('/consultarAlumnos/:idMateria/:periodo/:idDocente/:unidad', personalController.findAlumnos);//unidad idmaterias periodo idpersonal
 router.get('/consultar/estado/temas/:periodo/:id_Materia/:id_personal', personalController.findStadoTemas);//<
@@ -26,6 +27,7 @@ router.put('/update/:personalId', personalController.update);
 //rutas reporte
 router.get('/consultar/reporte/horarios/:periodo/:idMateria/:idDocente/:grupo', personalController.horarios);
 router.get('/consultar/reporte/lista/:periodo/:idMateria/:idDocente/:grupo', personalController.reporteListas);
+
 
 
 

@@ -123,7 +123,7 @@ Personal.getAll = async (result) => {
 
 
 
-Personal.findById = async (personalId, result) => { // get por id
+Personal.findById = async (personalId,periodo, result) => { // get por id
   const query = `
     select @filas := @filas + 1 AS nm,
     cargaacademica.idnomenclaturaPeriodo ,
@@ -149,7 +149,7 @@ Personal.findById = async (personalId, result) => { // get por id
     inner join catalogocarreras as carreras on carreras.idCarrera = carrera_plan.catalogoCarreras_idCarrera
     inner  join personal as docente on docente.id = materiadocente.personal_id 
     JOIN    (SELECT @filas := 0) contador
-    where docente.id = '${personalId}'  group by materiadocente.materias_idMaterias 
+    where docente.id = '${personalId}' and  cargaacademica.idnomenclaturaPeriodo=${periodo}  group by materiadocente.materias_idMaterias 
     ;`; // id es el personal
 
   await pool.query(query, (err, res) => {
@@ -310,6 +310,34 @@ Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { 
 
     if (res.length) {
       console.log("found lista de alumnos: ", res[0]);
+      result(null, res);
+      return;
+    }
+
+    // not found Customer with the id
+    result({ kind: "not_found" }, null);
+  });
+};
+
+
+
+
+Personal.periodoActual = async ( result) => { // get lista de  alumnos tabla calficaciones
+ console.log("chacando el periodo")
+  const query = `
+  SELECT max( cat_ranper.idcat_RanPer) as periodo, concat(max(cat_ranper.rango),' ', max( DATE_FORMAT(cat_ranper.fechaInicio, '%Y') ) ) as rango
+  FROM cat_ranper 
+  inner join cargaacademica as carga on carga.idnomenclaturaPeriodo = cat_ranper.idcat_RanPer;`; // la unidad esta directa para prubas rapidas
+
+  await pool.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found de periodo altual: ", res[0]);
       result(null, res);
       return;
     }
