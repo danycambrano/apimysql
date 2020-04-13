@@ -327,7 +327,7 @@ Personal.periodoActual = async ( result) => { // get lista de  alumnos tabla cal
   const query = `
   SELECT max( cat_ranper.idcat_RanPer) as periodo, concat(max(cat_ranper.rango),' ', max( DATE_FORMAT(cat_ranper.fechaInicio, '%Y') ) ) as rango
   FROM cat_ranper 
-  inner join cargaacademica as carga on carga.idnomenclaturaPeriodo = cat_ranper.idcat_RanPer;`; // la unidad esta directa para prubas rapidas
+  inner join cargaacademica as carga on carga.idnomenclaturaPeriodo = cat_ranper.idcat_RanPer;`; 
 
   await pool.query(query, (err, res) => {
     if (err) {
