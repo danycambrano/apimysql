@@ -11,7 +11,7 @@ router.post('/add/calificacion',personalController.createCalificacion);
 
 router.get('/consultar', personalController.findAll);
 router.get('/consultar/:personalId/:periodo', personalController.findOne);
-router.get('/consultarTema/:idDocente/:idMateria/:periodo/:cierre', personalController.findTemas);
+router.get('/consultarTema/:idDocente/:idMateria/:periodo/:minimo/:cierre', personalController.findTemas);
 router.get('/consultarAlumnos/:idMateria/:periodo/:idDocente/:unidad', personalController.findAlumnos);//unidad idmaterias periodo idpersonal
 router.get('/consultar/estado/temas/:periodo/:id_Materia/:id_personal', personalController.findStadoTemas);//<
 router.get('/consultarCriterios/:periodo/:idMateria/:unidad', personalController.findCriterios);

@@ -169,7 +169,7 @@ exports.reporteListas = (req, res) => {// get
 
 
 exports.findTemas = (req, res) => {// get
-  Personal.findTema(req.params.idDocente, req.params.idMateria, req.params.periodo, req.params.cierre, (err, data) => {
+  Personal.findTema(req.params.idDocente, req.params.idMateria, req.params.periodo,req.params.minimo, req.params.cierre, (err, data) => {
       if (err) {
         if (err.kind === "not_found") {
           res.status(404).send({sin:"null"});// message: `Not found Customer with id ${req.params.personalId}.`

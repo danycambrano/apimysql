@@ -171,7 +171,7 @@ Personal.findById = async (personalId,periodo, result) => { // get por id
 };
 
 
-Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { // get lista de materias
+Personal.findTema = async (idDocente, idMateria, periodo,minimo, cierre, result) => { // get lista de materias
   const query = `select cargaacademica.folioca as FolioAcade,cargaacademica.idnomenclaturaPeriodo ,
     materiadocente.materias_idMaterias as idMateria,
     criterios.nomUnidad as tema,criterios.numUnidad,
@@ -189,8 +189,14 @@ Personal.findTema = async (idDocente, idMateria, periodo, cierre, result) => { /
     left join catalogocarreras_has_planestudios as carrera_plan on carrera_plan.planEstudios_idplanEstudios=plan.idplanEstudios
     left join catalogocarreras as carreras on carreras.idCarrera = carrera_plan.catalogoCarreras_idCarrera
     left join personal as docente on docente.id = materiadocente.personal_id 
+    left join cierre_de_acta as acta on acta.periodo=cargaacademica.idnomenclaturaPeriodo
     
-    where docente.id="${idDocente}"  and criterios.periodo ="${periodo}" and criterios.fecha_limite <= "${cierre}" and criterios.materias_idmaterias="${idMateria}" group by tema
+    where 
+    docente.id="${idDocente}"  
+    and criterios.periodo ="${periodo}" 
+    and criterios.fecha_limite >'${minimo}' and criterios.fecha_limite <= '${cierre}' 
+    
+    and criterios.materias_idmaterias="${idMateria}" group by tema
     ;`; // id es el personal
 
   await pool.query(query, (err, res) => {
@@ -282,7 +288,9 @@ Personal.reporteLista = async (periodo, idMateria, idDocente, grupo, result) => 
 
 
 Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { // get lista de  alumnos tabla calficaciones
-  const query = `SELECT  cargaacademica.folioca as FolioAcade, cargaacademica.idnomenclaturaPeriodo,
+  const query = `
+  
+  SELECT @filas := @filas + 1 AS nm , cargaacademica.folioca as FolioAcade, cargaacademica.idnomenclaturaPeriodo,
   concat( aspirante.nombreAspirante, ' ', aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno) as nameAlumno, aspirante.numeroControl as control ,aspirante.Folio as folioAspirante,
   registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3,registrocal.calCriterio4,IF(registrocal.calificaciontotal <70, concat("NA:" ,registrocal.calificaciontotal), registrocal.calificaciontotal) as calificaciontotal,
   registrocal.calR1, registrocal.calR2,registrocal.calR3, registrocal.calR4,
@@ -295,7 +303,7 @@ Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { 
   inner join materiadocente on materiadocente.id = cargaacademica.materiadocente_id
   left join criterios on criterios.materias_idmaterias=materiadocente.materias_idMaterias
   left join registrocal on registrocal.criterios_idcat_Unidad = criterios.idcat_Unidad and registrocal.aspirante_Folio = aspirante.Folio
-  
+  JOIN    (SELECT @filas := 0) contador
   
   where criterios.numUnidad =${unidad} and criterios.materias_idmaterias = ${idMateria} 
   and criterios.periodo= ${periodo} and materiadocente.personal_id = ${idDocente}
@@ -325,9 +333,10 @@ Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { 
 Personal.periodoActual = async ( result) => { // get lista de  alumnos tabla calficaciones
  console.log("chacando el periodo")
   const query = `
-  SELECT max( cat_ranper.idcat_RanPer) as periodo, concat(max(cat_ranper.rango),' ', max( DATE_FORMAT(cat_ranper.fechaInicio, '%Y') ) ) as rango
+  SELECT max( cat_ranper.idcat_RanPer) as periodo, concat(max(cat_ranper.rango),' ', max( DATE_FORMAT(cat_ranper.fechaInicio, '%Y') ) ) as rango, max( acta.periodo) as existenciaActa
   FROM cat_ranper 
-  inner join cargaacademica as carga on carga.idnomenclaturaPeriodo = cat_ranper.idcat_RanPer;`; 
+  inner join cargaacademica as carga on carga.idnomenclaturaPeriodo = cat_ranper.idcat_RanPer
+  left join cierre_de_acta as acta on acta.periodo = cat_ranper.idcat_RanPer;`; 
 
   await pool.query(query, (err, res) => {
     if (err) {

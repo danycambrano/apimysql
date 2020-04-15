@@ -40,7 +40,7 @@ const Admin = function (administrador) {
   Admin.registrarFecha = async (administrador, result) => {//guardar calificacion
     console.log("esto es el metodo guardar")
   const query = `
-  INSERT INTO cierre_de_acta
+  replace INTO cierre_de_acta
   (primera_entrega, segunda_entrega, tercera_entrega, entrega_final, periodo) 
   VALUES ('${administrador.primera_entrega}', '${administrador.segunda_entrega}', 
   '${administrador.tercera_entrega}', '${administrador.entrega_final}', '${administrador.periodo}');`;
