@@ -48,6 +48,7 @@ const Criterios = function (calificacion) {
   this.aspirante_Folio = calificacion.aspirante_Folio ;
   this.registrocal_idcarrera = calificacion.registrocal_idcarrera;
   this.periodocali = calificacion.periodo;
+  this.opcion=calificacion.opcion;
 }
 
 
@@ -76,10 +77,10 @@ Personal.create = async (criterio, result) => {//guardar temas
     console.log("esto es el metodo guardar")
   const query = `INSERT INTO registrocal (calR1, calR2, calR3,calR4, calCriterio1, calCriterio2, calCriterio3,calCriterio4,calificaciontotal, 
     unidad, idGrupoAsign, materias_idmaterias, materiaDocente_id, criterios_idcat_Unidad,
-     aspirante_Folio, periodo)
+     aspirante_Folio, periodo,opcion)
      VALUES (${calificacion.calR1}, ${calificacion.calR2}, ${calificacion.calR3},${calificacion.calR4}, ${calificacion.calCriterio1}, ${calificacion.calCriterio2}, ${calificacion.calCriterio3},${calificacion.calCriterio4}, ${calificacion.calificaciontotal}, 
      ${calificacion.unidad}, ${calificacion.idGrupoAsign}, ${calificacion.materias_idmaterias}, ${calificacion.materiaDocente_id}, ${calificacion.criterios_idcat_Unidad},
-      ${calificacion.aspirante_Folio},${calificacion.periodocali});
+      ${calificacion.aspirante_Folio},${calificacion.periodocali},${calificacion.opcion});
     `;
 
   await pool.query(query, (err, res) => {
@@ -129,6 +130,7 @@ Personal.findById = async (personalId,periodo, result) => { // get por id
     cargaacademica.idnomenclaturaPeriodo ,
     cargaacademica.semestre,
     materiadocente.materias_idMaterias as idMateria, materiadocente.asignacionGrupo_idgrupo as idGrupos,
+    cat_grupo.nomenclatura, carreras.clave,
     cat_grupo.nomenclatura,
     
     concat(docente.gradoEstudio,' ', docente.nombres,' ',docente.apellidoPaterno,' ',docente.apellidoMaterno)  as nameDocente,docente.clavePersonal, docente.id as id_docente,
@@ -258,11 +260,12 @@ Personal.horario = async (periodo, idMateria, idDocente, grupo, result) => { // 
 
 Personal.reporteLista = async (periodo, idMateria, idDocente, grupo, result) => { // get lista de alumnos
   const query = `
-  SELECT aspirante.numeroControl , concat(aspirante.nombreAspirante, aspirante.apellidoPaterno,aspirante.apellidoMaterno) as nombre, 
+  SELECT @filas := @filas + 1 AS nm, aspirante.numeroControl , concat( aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno,' ',aspirante.nombreAspirante) as nombre, 
   if(cargaacademica.modalidad = 1,'','pendiente') as modalidad
    FROM liclichistorial.cargaacademica 
   inner join materiadocente on materiadocente.id = cargaacademica.materiadocente_id
   inner join aspirante on aspirante.Folio = cargaacademica.aspirante_Folio
+  JOIN (SELECT @filas := 0) contador
   
   where  cargaacademica.idnomenclaturaPeriodo= ${periodo}  and materiadocente.materias_idMaterias = ${idMateria}
   and materiadocente.personal_id = ${idDocente} and materiadocente.asignacionGrupo_idgrupo=${grupo} ;`; // 
@@ -293,7 +296,7 @@ Personal.findAlumno = async (idMateria, periodo, idDocente,unidad, result) => { 
   SELECT @filas := @filas + 1 AS nm , cargaacademica.folioca as FolioAcade, cargaacademica.idnomenclaturaPeriodo,
   concat( aspirante.nombreAspirante, ' ', aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno) as nameAlumno, aspirante.numeroControl as control ,aspirante.Folio as folioAspirante,
   registrocal.idcalificaciones, registrocal.calCriterio1,registrocal.calCriterio2, registrocal.calCriterio3,registrocal.calCriterio4,IF(registrocal.calificaciontotal <70, concat("NA:" ,registrocal.calificaciontotal), registrocal.calificaciontotal) as calificaciontotal,
-  registrocal.calR1, registrocal.calR2,registrocal.calR3, registrocal.calR4,
+  registrocal.calR1, registrocal.calR2,registrocal.calR3, registrocal.calR4,registrocal.opcion,
   registrocal.curso, registrocal.idGrupoAsign, registrocal.materiaDocente_id,registrocal.materias_idmaterias,
   registrocal.periodo,registrocal.unidad,
   materiadocente.materias_idMaterias as idMateria,materiadocente.id as idMateriaDocente, materiadocente.asignacionGrupo_idgrupo
@@ -572,7 +575,7 @@ Criterios.updateCalificacion = async (idCalificacion,calificacion ,result) => {
   //"UPDATE users SET nombre = ?, apellidos = ?, descripcion = ? WHERE id = ?",[personal.nombre, personal.apellidos, personal.descripcion, id]
   const query =`UPDATE registrocal SET calR1 = '${calificacion.calR1}', calR2 = '${calificacion.calR2}', calR3 = '${calificacion.calR3}',calR4 = '${calificacion.calR4}',
   calCriterio1 = '${calificacion.calCriterio1}', calCriterio2 = '${calificacion.calCriterio2}', calCriterio3 = '${calificacion.calCriterio3}', calCriterio4 = '${calificacion.calCriterio4}', 
-  calificaciontotal = '${calificacion.calificaciontotal}'
+  calificaciontotal = '${calificacion.calificaciontotal}', opcion='${calificacion.opcion}'
   WHERE (idcalificaciones = '${idCalificacion}');`;
 
   await pool.query(query,

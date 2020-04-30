@@ -80,6 +80,7 @@ const calificacion = new Criterios({
   aspirante_Folio: req.body.aspirante_Folio,
   registrocal_idcarrera: req.body.registrocal_idcarrera,
   periodo: req.body.periodo,
+  opcion:req.body.opcion
 });
 
 Criterios.createRegistocalificacion(calificacion, (err, data) => {
