@@ -1,15 +1,16 @@
 
 import routerx from 'express-promise-router';
 import personalController from '../controllers/personal.controller';
+import auth from './middlewares/auth'
 
 
 const router=routerx();
 //rutas actualizar periodo
-router.get('/consultar/periodo',personalController.getPeriodo);
+router.get('/consultar/periodo',auth.verifyAdministrador,personalController.getPeriodo);
 router.post('/add',personalController.create);
 router.post('/add/calificacion',personalController.createCalificacion);
 
-router.get('/consultar', personalController.findAll);
+router.get('/consultar',auth.verifyDocente, personalController.findAll);
 router.get('/consultar/:personalId/:periodo', personalController.findOne);
 router.get('/consultarTema/:idDocente/:idMateria/:periodo/:minimo/:cierre', personalController.findTemas);
 router.get('/consultarAlumnos/:idMateria/:periodo/:idDocente/:unidad', personalController.findAlumnos);//unidad idmaterias periodo idpersonal

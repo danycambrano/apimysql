@@ -1,14 +1,14 @@
 import pool from '../database';
 import { request } from 'express';
+import token from '../services/token';
+var crypto = require('crypto');
 
-const Reportes = function (reporte) {
-    this.nombre = personal.nombre;
-    this.apellidos = personal.apellidos;
-    this.descripcion = personal.descripcion;
-}
+const Reportes = function(reporte) {
+	
+};
 
-Reportes.getParcial = async (periodo, idMateria, idPersonal, grupo,result) => {
-    const query = `
+Reportes.getParcial = async (periodo, idMateria, idPersonal, grupo, result) => {
+	const query = `
 SELECT concat(aspirante.apellidoPaterno,' ',aspirante.apellidoMaterno,' ' ,aspirante.nombreAspirante) as nombreAspirante, aspirante.numeroControl, materiadocente.materias_idMaterias,
 group_concat( if(registrocal.unidad = 1,registrocal.calificaciontotal,'') separator '') as tema1,
 group_concat(if(registrocal.unidad = 2,registrocal.calificaciontotal,'') separator '' )as tema2,
@@ -43,24 +43,53 @@ and registrocal.idGrupoAsign=${grupo}
 and materiadocente.personal_id=${idPersonal} 
 group by registrocal.aspirante_Folio;`;
 
-    await pool.query(query, (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
-        }
+	await pool.query(query, (err, res) => {
+		if (err) {
+			console.log('error: ', err);
+			result(err, null);
+			return;
+		}
 
-        if (res.length) {
-            //console.log("found personal: ",res);
-            result(null, res);
-            return;
-        }
+		if (res.length) {
+			//console.log("found personal: ",res);
+			result(null, res);
+			return;
+		}
 
-        // not found Customer with the id
-        result({ kind: "not_found" }, null);
-    });
+		// not found Customer with the id
+		result({ kind: 'not_found' }, null);
+	});
 };
 
+Reportes.logeo = async (usuario, password, res) => {
+	// get por id
+	await pool.query(
+		`
+   SELECT usuariospersonal.idusuariosPer, usuariospersonal.alias,usuariospersonal.password,
+   rolusuario.nombreRol,
+   personal.id as usuarioID
+   FROM usuariospersonal
+   inner join rolusuario on rolusuario.id=usuariospersonal.RolUsuario_id
+   inner join personal on personal.clavePersonal = usuariospersonal.clavePersonal
+   where usuariospersonal.alias = '${usuario}'`,
+		(err, resul, fields) => {
+			var im = crypto.createHash('md5').update(password).digest('hex');
 
+			if (resul.length > 0) {
+				let pass = resul[0].password;
+				let npass = `04${im}2wA`;
+				let id = resul[0].idusuariosPer;
+				console.log(npass);
+				if (pass === npass) {
+					let tokenReturn = token.encode(id).then((ress) => res(null, { resul, token: ress }));
+					console.log('contraseñas correctas' + id);
+				} else {
+					console.log('contraseña incorrecta');
+					res(null);
+				}
+			}
+		}
+	);
+};
 
-module.exports = {Reportes};
+module.exports = { Reportes };
