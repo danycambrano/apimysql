@@ -49,14 +49,10 @@ group by registrocal.aspirante_Folio;`;
 			result(err, null);
 			return;
 		}
-
 		if (res.length) {
-			//console.log("found personal: ",res);
 			result(null, res);
 			return;
 		}
-
-		// not found Customer with the id
 		result({ kind: 'not_found' }, null);
 	});
 };
